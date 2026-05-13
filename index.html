@@ -121,6 +121,46 @@
       <h2>Find Your Flight</h2>
       <p>Search flights to destinations worldwide</p>
     </div>
+    <!-- ROUTE — the hero: from → to -->
+    <div class="route-hero">
+      <div class="route-fields">
+        <div class="route-from">
+          <label>From</label>
+          <div class="route-input-wrap">
+            <span class="route-icon">✈</span>
+            <input type="text" id="fromCity" placeholder="Departure city" value="New York (JFK)" autocomplete="off"
+                   onfocus="showSuggestions('fromSuggestions')" oninput="filterSuggestions(this, 'fromSuggestions')" />
+          </div>
+          <div class="suggestions" id="fromSuggestions"></div>
+        </div>
+        <div class="route-swap">
+          <button class="swap-btn" onclick="swapCities()" title="Swap cities">
+            ⇄
+          </button>
+        </div>
+        <div class="route-to">
+          <label>To</label>
+          <div class="route-input-wrap">
+            <span class="route-icon">📍</span>
+            <input type="text" id="toCity" placeholder="Arrival city" value="London (LHR)" autocomplete="off"
+                   onfocus="showSuggestions('toSuggestions')" oninput="filterSuggestions(this, 'toSuggestions')" />
+          </div>
+          <div class="suggestions" id="toSuggestions"></div>
+        </div>
+      </div>
+
+      <!-- Popular routes quick-pick -->
+      <div class="popular-routes">
+        <span class="pr-label">Popular:</span>
+        <button class="pr-pill" onclick="quickRoute('New York (JFK)', 'London (LHR)')">NYC → London</button>
+        <button class="pr-pill" onclick="quickRoute('Dubai (DXB)', 'New York (JFK)')">Dubai → NYC</button>
+        <button class="pr-pill" onclick="quickRoute('Tokyo (NRT)', 'Los Angeles (LAX)')">Tokyo → LA</button>
+        <button class="pr-pill" onclick="quickRoute('Paris (CDG)', 'New York (JFK)')">Paris → NYC</button>
+        <button class="pr-pill" onclick="quickRoute('Sydney (SYD)', 'Singapore (SIN)')">Sydney → Singapore</button>
+      </div>
+    </div>
+
+    <!-- DETAILS — trip type, dates, passengers, class -->
     <div class="search-card">
       <div class="trip-type">
         <label class="radio-pill active" onclick="setTripType('round')">
@@ -134,20 +174,6 @@
         </label>
       </div>
       <div class="search-grid">
-        <div class="field">
-          <label>From</label>
-          <div class="input-icon">
-            <span>📍</span>
-            <input type="text" id="fromCity" placeholder="City or Airport" value="New York (JFK)" />
-          </div>
-        </div>
-        <div class="field">
-          <label>To</label>
-          <div class="input-icon">
-            <span>📍</span>
-            <input type="text" id="toCity" placeholder="City or Airport" value="London (LHR)" />
-          </div>
-        </div>
         <div class="field">
           <label>Departure</label>
           <input type="date" id="departDate" />

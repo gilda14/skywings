@@ -32,6 +32,35 @@ const flights = [
   { id: 10, from: 'JFK', to: 'LHR', dep: '16:45', arr: '05:00+1', duration: '7h 15m', stops: 0, price: 520, airline: 'SkyWings', cabin: 'Premium Economy', seats: 9 },
 ];
 
+// ---- City database for autocomplete ----
+const cities = [
+  { name: 'New York', code: 'JFK', country: 'United States' },
+  { name: 'New York', code: 'LGA', country: 'United States' },
+  { name: 'Los Angeles', code: 'LAX', country: 'United States' },
+  { name: 'Chicago', code: 'ORD', country: 'United States' },
+  { name: 'San Francisco', code: 'SFO', country: 'United States' },
+  { name: 'Miami', code: 'MIA', country: 'United States' },
+  { name: 'London', code: 'LHR', country: 'United Kingdom' },
+  { name: 'London', code: 'LGW', country: 'United Kingdom' },
+  { name: 'Paris', code: 'CDG', country: 'France' },
+  { name: 'Dubai', code: 'DXB', country: 'UAE' },
+  { name: 'Tokyo', code: 'NRT', country: 'Japan' },
+  { name: 'Singapore', code: 'SIN', country: 'Singapore' },
+  { name: 'Sydney', code: 'SYD', country: 'Australia' },
+  { name: 'Hong Kong', code: 'HKG', country: 'China' },
+  { name: 'Bangkok', code: 'BKK', country: 'Thailand' },
+  { name: 'Toronto', code: 'YYZ', country: 'Canada' },
+  { name: 'Rome', code: 'FCO', country: 'Italy' },
+  { name: 'Barcelona', code: 'BCN', country: 'Spain' },
+  { name: 'Amsterdam', code: 'AMS', country: 'Netherlands' },
+  { name: 'Berlin', code: 'BER', country: 'Germany' },
+  { name: 'Istanbul', code: 'IST', country: 'Turkey' },
+  { name: 'Doha', code: 'DOH', country: 'Qatar' },
+  { name: 'Mumbai', code: 'BOM', country: 'India' },
+  { name: 'Seoul', code: 'ICN', country: 'South Korea' },
+  { name: 'Zurich', code: 'ZRH', country: 'Switzerland' },
+];
+
 // ---- Navigation ----
 function showPage(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -99,6 +128,69 @@ function logout() {
   document.getElementById('loginEmail').value = '';
   document.getElementById('loginPassword').value = '';
 }
+
+// ---- Autocomplete & Route helpers ----
+function buildSuggestions(filterText, targetId) {
+  const container = document.getElementById(targetId);
+  if (!filterText || filterText.length < 1) {
+    container.classList.remove('show');
+    return;
+  }
+  const q = filterText.toLowerCase();
+  const matches = cities.filter(c =>
+    c.name.toLowerCase().includes(q) ||
+    c.code.toLowerCase().includes(q) ||
+    c.country.toLowerCase().includes(q)
+  ).slice(0, 6);
+  if (matches.length === 0) { container.classList.remove('show'); return; }
+  container.innerHTML = matches.map(c =>
+    `<div class="suggestion-item" onclick="pickSuggestion('${c.name} (${c.code})', '${targetId}')">
+       <span>🏙</span>
+       <span class="s-city">${c.name}</span>
+       <span style="color:var(--text-light);font-size:12px">${c.country}</span>
+       <span class="s-code">${c.code}</span>
+     </div>`
+  ).join('');
+  container.classList.add('show');
+}
+
+function filterSuggestions(input, targetId) {
+  buildSuggestions(input.value, targetId);
+}
+
+function showSuggestions(targetId) {
+  const input = targetId === 'fromSuggestions'
+    ? document.getElementById('fromCity')
+    : document.getElementById('toCity');
+  buildSuggestions(input.value, targetId);
+}
+
+function pickSuggestion(value, targetId) {
+  const inputId = targetId === 'fromSuggestions' ? 'fromCity' : 'toCity';
+  document.getElementById(inputId).value = value;
+  document.getElementById(targetId).classList.remove('show');
+}
+
+function swapCities() {
+  const from = document.getElementById('fromCity');
+  const to = document.getElementById('toCity');
+  const tmp = from.value;
+  from.value = to.value;
+  to.value = tmp;
+}
+
+function quickRoute(from, to) {
+  document.getElementById('fromCity').value = from;
+  document.getElementById('toCity').value = to;
+  document.querySelectorAll('.suggestions').forEach(s => s.classList.remove('show'));
+}
+
+// Close suggestions on outside click
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.route-from') && !e.target.closest('.route-to')) {
+    document.querySelectorAll('.suggestions').forEach(s => s.classList.remove('show'));
+  }
+});
 
 // ---- Trip type ----
 function setTripType(type) {
