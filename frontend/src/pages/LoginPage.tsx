@@ -1,15 +1,34 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 
 export default function LoginPage() {
   const navigate = useNavigate()
+  const { login } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+  const [submitting, setSubmitting] = useState(false)
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    // TODO: call POST /api/auth/login
-    navigate('/search')
+    setError('')
+    setSubmitting(true)
+    try {
+      await login(email, password)
+      navigate('/search')
+    } catch (err: unknown) {
+      const detail = (err as { response?: { data?: { detail?: unknown } } })?.response?.data?.detail
+      if (typeof detail === 'string') {
+        setError(detail)
+      } else if (Array.isArray(detail) && detail.length > 0 && typeof detail[0]?.msg === 'string') {
+        setError(detail[0].msg)
+      } else {
+        setError('Invalid email or password')
+      }
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -36,6 +55,11 @@ export default function LoginPage() {
           <p className="text-gray-500 mb-6">Sign in to book your next flight</p>
 
           <form onSubmit={handleLogin} className="space-y-4">
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3">
+                {error}
+              </div>
+            )}
             <div>
               <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
                 Email
@@ -64,9 +88,10 @@ export default function LoginPage() {
             </div>
             <button
               type="submit"
-              className="w-full bg-primary text-white font-semibold py-3 rounded-lg hover:bg-primary-dark transition-colors"
+              disabled={submitting}
+              className="w-full bg-primary text-white font-semibold py-3 rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              Sign In
+              {submitting ? 'Signing in…' : 'Sign In'}
             </button>
           </form>
 

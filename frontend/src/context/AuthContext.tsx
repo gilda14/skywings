@@ -25,8 +25,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const token = localStorage.getItem('access_token')
     if (token) {
       client.get('/auth/me')
-        .then(res => setUser(res.data.user))
-        .catch(() => localStorage.removeItem('access_token'))
+        .then(res => setUser(res.data))
+        .catch(() => {
+          localStorage.removeItem('access_token')
+          localStorage.removeItem('refresh_token')
+        })
         .finally(() => setLoading(false))
     } else {
       setLoading(false)
