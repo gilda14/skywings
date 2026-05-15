@@ -1,0 +1,23 @@
+[project]
+name = "skywings-backend"
+version = "0.1.0"
+description = "SkyWings Airline Booking API"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.110,<1",
+    "uvicorn[standard]>=0.27,<1",
+    "sqlalchemy[asyncio]>=2.0,<3",
+    "asyncpg>=0.29,<1",
+    "alembic>=1.13,<2",
+    "pydantic-settings>=2.2,<3",
+    "python-jose[cryptography]>=3.3,<4",
+    "passlib[bcrypt]>=1.7,<2",
+    "python-multipart>=0.0,<1",
+]
+
+[tool.setuptools.packages.find]
+include = ["app", "app.*"]
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
