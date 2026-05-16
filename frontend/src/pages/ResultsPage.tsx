@@ -124,6 +124,15 @@ export default function ResultsPage() {
           <FlightCard key={flight.id} flight={flight} />
         ))}
       </div>
+
+      <div className="mt-6 text-center">
+        <button
+          onClick={() => navigate('/search')}
+          className="border border-gray-300 text-gray-700 font-semibold px-8 py-2.5 rounded-lg hover:bg-gray-50 transition-colors text-sm"
+        >
+          ← Back to Search
+        </button>
+      </div>
     </div>
   )
 }

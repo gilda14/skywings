@@ -1,14 +1,8 @@
 import { useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { searchFlights } from '../api/flights'
+import AirportInput from '../components/AirportInput'
 import type { Flight } from '../types/flight'
-
-const airports = [
-  { code: 'JFK', city: 'New York' },
-  { code: 'LAX', city: 'Los Angeles' },
-  { code: 'ORD', city: 'Chicago' },
-  { code: 'MIA', city: 'Miami' },
-]
 
 const cabinClasses = ['economy', 'business']
 
@@ -31,6 +25,10 @@ export default function SearchPage() {
     setError('')
     if (from === to) {
       setError('Origin and destination must be different')
+      return
+    }
+    if (from.length !== 3 || to.length !== 3) {
+      setError('Enter a valid 3-letter airport code')
       return
     }
     setLoading(true)
@@ -70,32 +68,24 @@ export default function SearchPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">From</label>
-              <select
+              <AirportInput
+                id="from"
                 value={from}
-                onChange={e => setFrom(e.target.value)}
-                required
-                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none"
-              >
-                <option value="">Select origin</option>
-                {airports.map(a => (
-                  <option key={a.code} value={a.code}>{a.city} ({a.code})</option>
-                ))}
-              </select>
+                onChange={setFrom}
+                placeholder="Airport code (e.g. JFK)"
+                excludeCode={to || undefined}
+              />
             </div>
 
             <div className="relative">
               <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">To</label>
-              <select
+              <AirportInput
+                id="to"
                 value={to}
-                onChange={e => setTo(e.target.value)}
-                required
-                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none"
-              >
-                <option value="">Select destination</option>
-                {airports.map(a => (
-                  <option key={a.code} value={a.code}>{a.city} ({a.code})</option>
-                ))}
-              </select>
+                onChange={setTo}
+                placeholder="Airport code (e.g. LAX)"
+                excludeCode={from || undefined}
+              />
               <button
                 type="button"
                 onClick={swap}
