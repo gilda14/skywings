@@ -70,34 +70,11 @@ function FlightCard({ flight }: { flight: Flight }) {
   )
 }
 
-export default function ResultsPage() {
-  const location = useLocation()
-  const navigate = useNavigate()
-  const flights = (location.state as { flights?: Flight[] })?.flights
-
-  if (!flights) {
-    return (
-      <div className="text-center py-12">
-        <p className="text-gray-400 text-lg mb-4">No search results found</p>
-        <Link to="/search" className="text-primary font-medium hover:underline">
-          Back to search
-        </Link>
-      </div>
-    )
-  }
-
+function FlightList({ flights, label }: { flights: Flight[]; label: string }) {
   if (flights.length === 0) {
     return (
-      <div className="text-center py-12">
-        <div className="text-4xl mb-3">🔍</div>
-        <p className="text-gray-500 text-lg mb-2">No flights found</p>
-        <p className="text-gray-400 text-sm mb-6">Try different dates or destinations</p>
-        <button
-          onClick={() => navigate('/search')}
-          className="text-primary font-medium hover:underline"
-        >
-          Modify search
-        </button>
+      <div className="text-center py-8 bg-white rounded-xl border border-gray-200">
+        <p className="text-gray-400 text-sm">No flights found for {label}</p>
       </div>
     )
   }
@@ -106,23 +83,74 @@ export default function ResultsPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h2 className="text-2xl font-bold">{from} → {to}</h2>
-          <p className="text-gray-500 text-sm mt-1">{flights.length} flight{flights.length !== 1 ? 's' : ''} found</p>
+      <div className="mb-3">
+        <div className="text-xs text-gray-400 font-semibold uppercase tracking-wide">{label}</div>
+        <div className="flex items-center gap-2 mt-0.5">
+          <h3 className="text-lg font-bold">{from} → {to}</h3>
+          <span className="text-sm text-gray-400">· {flights.length} flight{flights.length !== 1 ? 's' : ''}</span>
         </div>
-        <button
-          onClick={() => navigate('/search')}
-          className="text-sm text-primary font-medium hover:underline"
-        >
-          Modify search
-        </button>
       </div>
-
       <div className="space-y-3">
         {flights.map(flight => (
           <FlightCard key={flight.id} flight={flight} />
         ))}
+      </div>
+    </div>
+  )
+}
+
+export default function ResultsPage() {
+  const location = useLocation()
+  const navigate = useNavigate()
+  const state = location.state as { flights?: Flight[]; leg2?: Flight[] } | null
+  const flights = state?.flights
+  const leg2 = state?.leg2
+
+  if (!flights) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-gray-400 text-lg mb-4">No search results found</p>
+        <Link to="/search" className="text-primary font-medium hover:underline">Back to search</Link>
+      </div>
+    )
+  }
+
+  const totalFlights = flights.length + (leg2?.length || 0)
+
+  if (totalFlights === 0) {
+    return (
+      <div className="text-center py-12">
+        <div className="text-4xl mb-3">🔍</div>
+        <p className="text-gray-500 text-lg mb-2">No flights found</p>
+        <p className="text-gray-400 text-sm mb-6">Try different dates or destinations</p>
+        <button onClick={() => navigate('/search')} className="text-primary font-medium hover:underline">
+          Modify search
+        </button>
+      </div>
+    )
+  }
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h2 className="text-2xl font-bold">Available Flights</h2>
+          <p className="text-gray-500 text-sm mt-1">{leg2 ? 'Multi-city results' : `${flights[0].from_city} → ${flights[0].to_city}`}</p>
+        </div>
+        <button onClick={() => navigate('/search')} className="text-sm text-primary font-medium hover:underline">
+          Modify search
+        </button>
+      </div>
+
+      <div className={leg2 ? 'space-y-8' : undefined}>
+        {leg2 ? (
+          <>
+            <FlightList flights={flights} label="Leg 1" />
+            <FlightList flights={leg2} label="Leg 2" />
+          </>
+        ) : (
+          flights.map(flight => <FlightCard key={flight.id} flight={flight} />)
+        )}
       </div>
 
       <div className="mt-6 text-center">
