@@ -43,7 +43,7 @@ export default function SearchPage() {
     setError('')
 
     if (from1 === to1 || from1.length !== 3 || to1.length !== 3) {
-      setError('Enter valid 3-letter airport codes for the first leg')
+      setError('choose your flight')
       return
     }
     if (tripType === 'multicity') {

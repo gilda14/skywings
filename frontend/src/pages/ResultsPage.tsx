@@ -1,5 +1,65 @@
+import { useState, useMemo } from 'react'
 import { useLocation, useNavigate, Link } from 'react-router-dom'
 import type { Flight } from '../types/flight'
+
+type PriceSort = 'none' | 'low' | 'high'
+type CabinFilter = 'all' | 'economy' | 'business'
+
+function useSortedFlights(flights: Flight[], priceSort: PriceSort, cabinFilter: CabinFilter): Flight[] {
+  return useMemo(() => {
+    let list = [...flights]
+    if (cabinFilter !== 'all') {
+      list = list.filter(f => f.cabin_class === cabinFilter)
+    }
+    if (priceSort === 'low') {
+      list.sort((a, b) => a.base_price - b.base_price)
+    } else if (priceSort === 'high') {
+      list.sort((a, b) => b.base_price - a.base_price)
+    }
+    return list
+  }, [flights, priceSort, cabinFilter])
+}
+
+function SortBar({
+  priceSort,
+  cabinFilter,
+  onPriceSort,
+  onCabinFilter,
+}: {
+  priceSort: PriceSort
+  cabinFilter: CabinFilter
+  onPriceSort: (s: PriceSort) => void
+  onCabinFilter: (f: CabinFilter) => void
+}) {
+  return (
+    <div className="flex items-center gap-4 mb-4 flex-wrap">
+      <div className="flex items-center gap-2">
+        <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap">Sort by</label>
+        <select
+          value={priceSort}
+          onChange={e => onPriceSort(e.target.value as PriceSort)}
+          className="border border-gray-300 rounded-lg px-3 py-1.5 text-xs font-medium text-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none"
+        >
+          <option value="none">Default</option>
+          <option value="low">Price: Low to High</option>
+          <option value="high">Price: High to Low</option>
+        </select>
+      </div>
+      <div className="flex items-center gap-2">
+        <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap">Cabin</label>
+        <select
+          value={cabinFilter}
+          onChange={e => onCabinFilter(e.target.value as CabinFilter)}
+          className="border border-gray-300 rounded-lg px-3 py-1.5 text-xs font-medium text-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none"
+        >
+          <option value="all">All Cabins</option>
+          <option value="economy">Economy</option>
+          <option value="business">Business</option>
+        </select>
+      </div>
+    </div>
+  )
+}
 
 function formatTime(iso: string) {
   return new Date(iso).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' })
@@ -106,6 +166,12 @@ export default function ResultsPage() {
   const flights = state?.flights
   const leg2 = state?.leg2
 
+  const [priceSort, setPriceSort] = useState<PriceSort>('none')
+  const [cabinFilter, setCabinFilter] = useState<CabinFilter>('all')
+
+  const sortedFlights = useSortedFlights(flights || [], priceSort, cabinFilter)
+  const sortedLeg2 = useSortedFlights(leg2 || [], priceSort, cabinFilter)
+
   if (!flights) {
     return (
       <div className="text-center py-12">
@@ -115,16 +181,16 @@ export default function ResultsPage() {
     )
   }
 
-  const totalFlights = flights.length + (leg2?.length || 0)
+  const totalFlights = sortedFlights.length + sortedLeg2.length
 
   if (totalFlights === 0) {
     return (
       <div className="text-center py-12">
         <div className="text-4xl mb-3">🔍</div>
-        <p className="text-gray-500 text-lg mb-2">No flights found</p>
-        <p className="text-gray-400 text-sm mb-6">Try different dates or destinations</p>
-        <button onClick={() => navigate('/search')} className="text-primary font-medium hover:underline">
-          Modify search
+        <p className="text-gray-500 text-lg mb-2">No flights match the filter</p>
+        <p className="text-gray-400 text-sm mb-6">Try adjusting the sort or cabin filter</p>
+        <button onClick={() => { setPriceSort('none'); setCabinFilter('all') }} className="text-primary font-medium hover:underline">
+          Reset filters
         </button>
       </div>
     )
@@ -132,7 +198,7 @@ export default function ResultsPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-4">
         <div>
           <h2 className="text-2xl font-bold">Available Flights</h2>
           <p className="text-gray-500 text-sm mt-1">{leg2 ? 'Multi-city results' : `${flights[0].from_city} → ${flights[0].to_city}`}</p>
@@ -142,14 +208,21 @@ export default function ResultsPage() {
         </button>
       </div>
 
-      <div className={leg2 ? 'space-y-8' : undefined}>
+      <SortBar
+        priceSort={priceSort}
+        cabinFilter={cabinFilter}
+        onPriceSort={setPriceSort}
+        onCabinFilter={setCabinFilter}
+      />
+
+      <div className={leg2 ? 'space-y-8' : 'space-y-3'}>
         {leg2 ? (
           <>
-            <FlightList flights={flights} label="Leg 1" />
-            <FlightList flights={leg2} label="Leg 2" />
+            <FlightList flights={sortedFlights} label="Leg 1" />
+            <FlightList flights={sortedLeg2} label="Leg 2" />
           </>
         ) : (
-          flights.map(flight => <FlightCard key={flight.id} flight={flight} />)
+          sortedFlights.map(flight => <FlightCard key={flight.id} flight={flight} />)
         )}
       </div>
 
