@@ -48,7 +48,7 @@ export default function SearchPage() {
     }
     if (tripType === 'multicity') {
       if (from2 === to2 || from2.length !== 3 || to2.length !== 3) {
-        setError('Enter valid 3-letter airport codes for the second leg')
+        setError('choose your flight')
         return
       }
     }
