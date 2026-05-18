@@ -1,4 +1,4 @@
-import { Outlet, Link } from 'react-router-dom'
+import { Outlet, Link, useLocation } from 'react-router-dom'
 
 const steps = [
   { label: 'Search',  path: '/search' },
@@ -10,6 +10,9 @@ const steps = [
 ]
 
 export default function Layout() {
+  const location = useLocation()
+  const activeIndex = steps.findIndex(s => location.pathname === s.path)
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Navbar */}
@@ -24,10 +27,42 @@ export default function Layout() {
 
       {/* Step indicator */}
       <nav className="bg-white border-b border-gray-200 px-4">
-        <div className="max-w-5xl mx-auto flex justify-between py-2 text-xs font-medium text-gray-400">
-          {steps.map(s => (
-            <span key={s.label}>{s.label}</span>
-          ))}
+        <div className="max-w-5xl mx-auto py-3">
+          <div className="flex items-center justify-between">
+            {steps.map((s, i) => {
+              const isActive = i === activeIndex
+              const isPast = i < activeIndex
+              return (
+                <div key={s.label} className="flex items-center flex-1 last:flex-none">
+                  <div className="flex flex-col items-center">
+                    <div
+                      className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${
+                        isActive
+                          ? 'bg-primary text-white shadow-md shadow-primary/30'
+                          : isPast
+                          ? 'bg-primary text-white'
+                          : 'bg-gray-200 text-gray-500'
+                      }`}
+                    >
+                      {isPast ? '✓' : i + 1}
+                    </div>
+                    <span
+                      className={`text-[10px] font-semibold mt-1.5 uppercase tracking-wide whitespace-nowrap ${
+                        isActive ? 'text-primary' : isPast ? 'text-primary/70' : 'text-gray-400'
+                      }`}
+                    >
+                      {s.label}
+                    </span>
+                  </div>
+                  {i < steps.length - 1 && (
+                    <div className="flex-1 h-0.5 mx-1 -mt-5">
+                      <div className={`h-full rounded transition-colors ${i < activeIndex ? 'bg-primary' : 'bg-gray-200'}`} />
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
         </div>
       </nav>
 
