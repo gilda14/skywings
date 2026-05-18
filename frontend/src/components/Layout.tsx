@@ -1,4 +1,5 @@
-import { Outlet, Link, useLocation } from 'react-router-dom'
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 
 const steps = [
   { label: 'Search',  path: '/search' },
@@ -11,7 +12,14 @@ const steps = [
 
 export default function Layout() {
   const location = useLocation()
+  const navigate = useNavigate()
+  const { user, logout } = useAuth()
   const activeIndex = steps.findIndex(s => location.pathname === s.path)
+
+  const handleLogout = () => {
+    logout()
+    navigate('/login')
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -22,6 +30,37 @@ export default function Layout() {
             <span className="text-xl">✈</span>
             <span className="font-bold text-lg text-primary">SkyWings</span>
           </Link>
+
+          <div className="flex items-center gap-3">
+            {user ? (
+              <>
+                <span className="text-sm text-gray-600 hidden sm:inline">{user.full_name}</span>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-red-600 transition-colors font-medium"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
+                    <polyline points="16 17 21 12 16 7" />
+                    <line x1="21" y1="12" x2="9" y2="12" />
+                  </svg>
+                  <span className="hidden sm:inline">Logout</span>
+                </button>
+              </>
+            ) : (
+              <Link
+                to="/login"
+                className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-primary transition-colors font-medium"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4" />
+                  <polyline points="10 17 15 12 10 7" />
+                  <line x1="15" y1="12" x2="3" y2="12" />
+                </svg>
+                <span className="hidden sm:inline">Login</span>
+              </Link>
+            )}
+          </div>
         </div>
       </header>
 
