@@ -8,3 +8,6 @@ body {
     'Helvetica Neue', Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
+
+.from-primaryleft {background-color: #05203c !important;}
+.bg-primary{background-color: #05203c !important;}

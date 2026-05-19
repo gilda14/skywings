@@ -23,13 +23,13 @@ export default function AirportInput({ id, value, onChange, placeholder, exclude
   const [query, setQuery] = useState(value)
   const wrapperRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
-
+//data function side effect 
   useEffect(() => {
     client.get<Airport[]>('/airports')
       .then(res => setAllAirports(res.data))
       .catch(() => setAllAirports([]))
   }, [])
-
+//useEffect to safely fall back to a default state
   useEffect(() => {
     const exclude = excludeCode || ''
     const list = exclude
@@ -37,7 +37,7 @@ export default function AirportInput({ id, value, onChange, placeholder, exclude
       : allAirports
     setFiltered(list)
   }, [allAirports, excludeCode])
-
+// you are typically trying to catch events that happen outside of a specific React element,
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {

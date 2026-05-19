@@ -10,6 +10,7 @@ import DateTimePage from './pages/DateTimePage'
 import BaggagePage from './pages/BaggagePage'
 import PaymentPage from './pages/PaymentPage'
 import ConfirmationPage from './pages/ConfirmationPage'
+import NewLoginPage from './pages/NewLoginPage'
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         {/* Public routes — no layout */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+         <Route path="/login2" element={<NewLoginPage />} />
 
         {/* Protected routes */}
         <Route element={<ProtectedRoute />}>
